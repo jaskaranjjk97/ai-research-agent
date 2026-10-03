@@ -26,6 +26,11 @@ class SearchResult(BaseModel):
         description="The source or domain of the search result.",
     )
 
+    question_id: str | None = Field(
+        default=None,
+        description="Research question associated with this search result.",
+    )
+
 
 class Source(BaseModel):
     """Represents the source selected for reaserach."""
