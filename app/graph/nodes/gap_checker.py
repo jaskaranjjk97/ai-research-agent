@@ -4,6 +4,7 @@ from app.models.claim import (
     VerificationResult,
     VerificationStatus,
 )
+from app.models.research import ResearchQuestionStatus
 from app.models.state import ResearchState
 
 
@@ -19,10 +20,12 @@ class GapChecker:
 
         claims_by_id = {claim.claim_id: claim for claim in claims}
 
+        latest_results = {result.claim_id: result for result in verification_results}
+
         gaps: list[str] = []
 
-        for result in verification_results:
-            claim = claims_by_id.get(result.claim_id)
+        for claim_id, result in latest_results.items():
+            claim = claims_by_id.get(claim_id)
 
             if claim is None:
                 continue
@@ -31,20 +34,21 @@ class GapChecker:
                 VerificationStatus.NOT_SUPPORTED,
                 VerificationStatus.INSUFFICIENT_EVIDENCE,
             }:
-                gaps.append(result.claim_id)
+                gaps.append(claim_id)
                 continue
 
             if (
                 result.status == VerificationStatus.PARTIALLY_SUPPORTED
                 and claim.importance >= 4
             ):
-                gaps.append(result.claim_id)
+                gaps.append(claim_id)
 
         return gaps
 
 
 async def gap_check_node(
-    state: ResearchGraphState, gap_checker: GapChecker
+    state: ResearchGraphState,
+    gap_checker: GapChecker,
 ) -> ResearchGraphState:
     """Check whether the current research has unresolved gaps."""
 
@@ -56,6 +60,22 @@ async def gap_check_node(
     )
 
     research_state.research_gaps = gaps
+
+    if research_state.plan is not None:
+        current_question = next(
+            (
+                question
+                for question in research_state.plan.questions
+                if question.id == research_state.current_question_id
+            ),
+            None,
+        )
+
+        if current_question is not None:
+            if gaps:
+                current_question.status = ResearchQuestionStatus.PENDING
+            else:
+                current_question.status = ResearchQuestionStatus.ANSWERED
 
     return state
 

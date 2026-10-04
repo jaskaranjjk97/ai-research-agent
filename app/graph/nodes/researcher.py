@@ -5,7 +5,7 @@ from app.models.source import SearchResult
 from app.tools.search import SearchTool
 
 
-def select_next_question(questions: list[ResearchQuestion]) -> ResearchQuestion:
+def select_next_question(questions: list[ResearchQuestion]) -> ResearchQuestion | None:
     """This function will select the highest priority question for research."""
 
     pending_questions = [
