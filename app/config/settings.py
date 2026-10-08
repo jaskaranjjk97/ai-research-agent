@@ -20,9 +20,11 @@ class Settings(BaseSettings):
 
     llm_provider: str = "openai"
     llm_model: str = ""
+    openai_api_key: str = ""
 
     search_provider: str = ""
     search_api_key: str = ""
+    tavily_api_key: str = ""
 
     max_research_iterations: int = Field(default=3, ge=1)
     max_tool_calls: int = Field(default=20, ge=1)

@@ -1,4 +1,5 @@
 from app.agents.research_agent import ResearchAgent
+from app.config.settings import Settings
 from app.graph.graph import build_research_graph
 from app.graph.nodes.extractor import EvidenceExtractor
 from app.graph.nodes.gap_checker import GapChecker, ResearchIterationGuard
@@ -7,6 +8,7 @@ from app.graph.nodes.reporter import ReportGenerator
 from app.graph.nodes.researcher import Researcher
 from app.graph.nodes.verifier import ClaimExtractor, ClaimVerifier
 from app.providers.extraction.base import ExtractionProvider
+from app.providers.factory import create_llm_provider, create_search_provider
 from app.providers.llm.base import LLMProvider
 from app.providers.search.base import SearchProvider
 from app.providers.web.base import WebProvider
@@ -106,4 +108,25 @@ def build_research_service(
 
     return ResearchService(
         research_agent=research_agent,
+    )
+
+
+def build_configured_research_service(
+    settings: Settings,
+    web_provider: WebProvider,
+    extraction_provider: ExtractionProvider,
+) -> ResearchService:
+    """Build the research service using application settings."""
+
+    llm_provider = create_llm_provider(settings)
+    search_provider = create_search_provider(settings)
+
+    return build_research_service(
+        llm_provider=llm_provider,
+        search_provider=search_provider,
+        web_provider=web_provider,
+        extraction_provider=extraction_provider,
+        max_search_results=settings.max_search_results,
+        max_tool_calls=settings.max_tool_calls,
+        max_research_iterations=settings.max_research_iterations,
     )
