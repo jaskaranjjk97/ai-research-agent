@@ -12,6 +12,7 @@ from app.providers.factory import create_llm_provider, create_search_provider
 from app.providers.llm.base import LLMProvider
 from app.providers.search.base import SearchProvider
 from app.providers.web.base import WebProvider
+from app.providers.web.httpx import HttpxWebProvider
 from app.services.research_service import ResearchService
 from app.services.source_service import SourceService
 from app.tools.execution import ToolExecutionController
@@ -113,13 +114,16 @@ def build_research_service(
 
 def build_configured_research_service(
     settings: Settings,
-    web_provider: WebProvider,
     extraction_provider: ExtractionProvider,
+    web_provider: WebProvider | None = None,
 ) -> ResearchService:
     """Build the research service using application settings."""
 
     llm_provider = create_llm_provider(settings)
     search_provider = create_search_provider(settings)
+
+    if web_provider is None:
+        web_provider = HttpxWebProvider()
 
     return build_research_service(
         llm_provider=llm_provider,
