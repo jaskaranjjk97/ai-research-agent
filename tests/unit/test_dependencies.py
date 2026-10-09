@@ -74,3 +74,17 @@ def test_build_configured_research_service_uses_httpx_by_default():
     )
 
     assert isinstance(service, ResearchService)
+
+
+def test_build_configured_research_service_uses_llm_extraction_by_default():
+    settings = Settings(
+        llm_provider="openai",
+        llm_model="test-model",
+        openai_api_key="test-api-key",
+        search_provider="tavily",
+        tavily_api_key="test-api-key",
+    )
+
+    service = build_configured_research_service(settings=settings)
+
+    assert isinstance(service, ResearchService)

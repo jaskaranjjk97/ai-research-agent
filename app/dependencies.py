@@ -8,6 +8,7 @@ from app.graph.nodes.reporter import ReportGenerator
 from app.graph.nodes.researcher import Researcher
 from app.graph.nodes.verifier import ClaimExtractor, ClaimVerifier
 from app.providers.extraction.base import ExtractionProvider
+from app.providers.extraction.llm import LLMExtractionProvider
 from app.providers.factory import create_llm_provider, create_search_provider
 from app.providers.llm.base import LLMProvider
 from app.providers.search.base import SearchProvider
@@ -114,7 +115,7 @@ def build_research_service(
 
 def build_configured_research_service(
     settings: Settings,
-    extraction_provider: ExtractionProvider,
+    extraction_provider: ExtractionProvider | None = None,
     web_provider: WebProvider | None = None,
 ) -> ResearchService:
     """Build the research service using application settings."""
@@ -124,6 +125,9 @@ def build_configured_research_service(
 
     if web_provider is None:
         web_provider = HttpxWebProvider()
+
+    if extraction_provider is None:
+        extraction_provider = LLMExtractionProvider(llm_provider=llm_provider)
 
     return build_research_service(
         llm_provider=llm_provider,
