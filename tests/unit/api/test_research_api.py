@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from fastapi.testclient import TestClient
 
@@ -136,5 +137,59 @@ def test_research_endpoint_handles_provider_failure():
         )
 
         assert response.status_code == 502
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_successful_research_logs_duration(caplog):
+    app.dependency_overrides[get_research_service_dependency] = lambda: (
+        FakeResearchService()
+    )
+
+    try:
+        with caplog.at_level(logging.INFO):
+            response = TestClient(app).post(
+                "/api/v1/research",
+                json={"query": "Research Python async programming"},
+            )
+
+        assert response.status_code == 200
+
+        research_record = next(
+            record
+            for record in caplog.records
+            if record.message == "Research completed successfully"
+        )
+        assert isinstance(research_record.duration_seconds, float)
+        assert research_record.duration_seconds >= 0
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_unexpected_research_failure_is_logged(caplog):
+    class FailingResearchService:
+        async def run(self, request):
+            raise RuntimeError("Internal failure")
+
+    app.dependency_overrides[get_research_service_dependency] = lambda: (
+        FailingResearchService()
+    )
+
+    try:
+        with caplog.at_level(logging.ERROR):
+            response = TestClient(app).post(
+                "/api/v1/research",
+                json={"query": "Research Python async programming"},
+            )
+
+        assert response.status_code == 500
+
+        error_record = next(
+            record
+            for record in caplog.records
+            if record.message == "Unexpected research execution failure"
+        )
+        assert error_record.exc_info is not None
+        assert isinstance(error_record.duration_seconds, float)
     finally:
         app.dependency_overrides.clear()
