@@ -16,7 +16,10 @@ class Settings(BaseSettings):
 
     app_name: str = "ai-research-agent"
     app_env: str = "development"
-    log_level: str = "INFO"
+    log_level: str = Field(
+        default="INFO",
+        pattern="^(?i:DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+    )
 
     llm_provider: str = "openai"
     llm_model: str = ""

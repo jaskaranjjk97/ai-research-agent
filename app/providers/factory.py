@@ -8,7 +8,7 @@ from app.providers.search.tavily import TavilySearchProvider
 def create_llm_provider(settings: Settings) -> LLMProvider:
     """Create the configured LLM provider."""
 
-    if settings.llm_provider == "openai":
+    if settings.llm_provider.strip().lower() == "openai":
         return OpenAILLMProvider(
             api_key=settings.openai_api_key,
             model=settings.llm_model,
@@ -22,7 +22,7 @@ def create_llm_provider(settings: Settings) -> LLMProvider:
 def create_search_provider(settings: Settings) -> SearchProvider:
     """Create the configured search provider."""
 
-    if settings.search_provider == "tavily":
+    if settings.search_provider.strip().lower() == "tavily":
         return TavilySearchProvider(
             api_key=settings.tavily_api_key,
             timeout=settings.search_timeout_seconds,

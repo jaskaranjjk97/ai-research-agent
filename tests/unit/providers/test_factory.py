@@ -69,3 +69,60 @@ def test_unsupported_search_provider_raises_error():
         match="Unsupported search provider: unsupported",
     ):
         create_search_provider(settings)
+
+
+def test_empty_llm_model_raises_clear_error():
+    settings = Settings(
+        llm_provider="openai",
+        llm_model="",
+        openai_api_key="test-api-key",
+    )
+
+    with pytest.raises(ValueError, match="OpenAI model cannot be empty"):
+        create_llm_provider(settings)
+
+
+def test_empty_openai_api_key_raises_clear_error():
+    settings = Settings(
+        llm_provider="openai",
+        llm_model="test-model",
+        openai_api_key="",
+    )
+
+    with pytest.raises(ValueError, match="OpenAI API key cannot be empty"):
+        create_llm_provider(settings)
+
+
+def test_empty_tavily_api_key_raises_clear_error():
+    settings = Settings(
+        search_provider="tavily",
+        tavily_api_key="",
+    )
+
+    with pytest.raises(ValueError, match="Tavily API key cannot be empty"):
+        create_search_provider(settings)
+
+
+def test_create_openai_provider_accepts_uppercase_provider_name():
+    settings = Settings(
+        llm_provider="OPENAI",
+        llm_model="test-model",
+        openai_api_key="test-api-key",
+    )
+
+    with patch("app.providers.llm.openai.AsyncOpenAI"):
+        provider = create_llm_provider(settings)
+
+    assert isinstance(provider, OpenAILLMProvider)
+
+
+def test_create_tavily_provider_accepts_uppercase_provider_name():
+    settings = Settings(
+        search_provider="TAVILY",
+        tavily_api_key="test-api-key",
+    )
+
+    with patch("app.providers.search.tavily.AsyncTavilyClient"):
+        provider = create_search_provider(settings)
+
+    assert isinstance(provider, TavilySearchProvider)

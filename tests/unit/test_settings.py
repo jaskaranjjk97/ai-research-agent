@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from app.config.settings import Settings
 
 
@@ -11,3 +14,8 @@ def test_default_settings():
     assert settings.api_port == 8000
     assert settings.max_sources == 30
     assert settings.max_tool_calls == 20
+
+
+def test_invalid_log_level_is_rejected():
+    with pytest.raises(ValidationError):
+        Settings(log_level="INVALID")
