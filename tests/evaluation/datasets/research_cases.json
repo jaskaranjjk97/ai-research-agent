@@ -1,0 +1,141 @@
+{
+  "dataset_name": "ai-research-agent-baseline",
+  "version": "1.0",
+  "cases": [
+    {
+      "case_id": "complete_report",
+      "description": "All expected sections and claims are cited.",
+      "expected_sections": [
+        "Overview",
+        "Conclusion"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim-1",
+          "evidence_ids": ["evidence-1"],
+          "statement": "Solar energy generates electricity using photovoltaic cells."
+        },
+        {
+          "claim_id": "claim-2",
+          "evidence_ids": ["evidence-2"],
+          "statement": "Solar generation depends on available sunlight."
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source-1",
+          "title": "Solar Energy Overview",
+          "url": "https://example.com/solar",
+          "domain": "example.com",
+          "content": "Example source content about solar energy.",
+          "retrieved_at": "2026-10-10T12:00:00Z"
+        }
+      ],
+      "report": {
+        "title": "Solar Energy Research",
+        "executive_summary": "Solar energy converts sunlight into electricity.",
+        "sections": [
+          {
+            "section_id": "section-1",
+            "title": "Overview",
+            "content": "Photovoltaic cells convert sunlight into electricity.",
+            "claim_ids": ["claim-1"]
+          },
+          {
+            "section_id": "section-2",
+            "title": "Conclusion",
+            "content": "Solar generation depends on available sunlight.",
+            "claim_ids": ["claim-2"]
+          }
+        ],
+        "citations": [
+          {
+            "citation_id": "citation-1",
+            "source_id": "source-1",
+            "claim_ids": ["claim-1", "claim-2"]
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "partial_coverage",
+      "description": "One claim is uncited and one expected section is missing.",
+      "expected_sections": [
+        "Overview",
+        "Limitations"
+      ],
+      "claims": [
+        {
+          "claim_id": "claim-1",
+          "evidence_ids": ["evidence-1"],
+          "statement": "Solar energy generation depends on sunlight."
+        },
+        {
+          "claim_id": "claim-2",
+          "evidence_ids": ["evidence-2"],
+          "statement": "Solar energy output can vary with weather."
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "source-1",
+          "title": "Solar Energy Overview",
+          "url": "https://example.com/solar",
+          "domain": "example.com",
+          "content": "Example source content about solar energy.",
+          "retrieved_at": "2026-10-10T12:00:00Z"
+        }
+      ],
+      "report": {
+        "title": "Solar Energy Research",
+        "executive_summary": "Solar generation depends on environmental conditions.",
+        "sections": [
+          {
+            "section_id": "section-1",
+            "title": "Overview",
+            "content": "Solar generation depends on sunlight.",
+            "claim_ids": ["claim-1"]
+          }
+        ],
+        "citations": [
+          {
+            "citation_id": "citation-1",
+            "source_id": "source-1",
+            "claim_ids": ["claim-1"]
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "no_claims",
+      "description": "The report contains no claims to evaluate.",
+      "expected_sections": [
+        "Overview"
+      ],
+      "claims": [],
+      "sources": [
+        {
+          "source_id": "source-1",
+          "title": "General Overview",
+          "url": "https://example.com/overview",
+          "domain": "example.com",
+          "content": "Example general overview.",
+          "retrieved_at": "2026-10-10T12:00:00Z"
+        }
+      ],
+      "report": {
+        "title": "General Research",
+        "executive_summary": "A general overview of the topic.",
+        "sections": [
+          {
+            "section_id": "section-1",
+            "title": "Overview",
+            "content": "General introductory content.",
+            "claim_ids": []
+          }
+        ],
+        "citations": []
+      }
+    }
+  ]
+}
