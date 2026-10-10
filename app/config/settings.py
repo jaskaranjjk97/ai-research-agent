@@ -21,10 +21,14 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     llm_model: str = ""
     openai_api_key: str = ""
+    llm_timeout_seconds: float = Field(default=60.0, gt=0)
+    llm_max_retries: int = Field(default=2, ge=0, le=10)
 
     search_provider: str = ""
     search_api_key: str = ""
     tavily_api_key: str = ""
+    search_timeout_seconds: float = Field(default=30.0, gt=0)
+    research_request_timeout_seconds: float = Field(default=180.0, gt=0)
 
     max_research_iterations: int = Field(default=3, ge=1)
     max_tool_calls: int = Field(default=20, ge=1)

@@ -1,5 +1,9 @@
+from unittest.mock import patch
+
+import openai
 import pytest
 
+from app.providers.errors import ProviderError
 from app.providers.llm.openai import OpenAILLMProvider
 
 
@@ -47,6 +51,80 @@ def test_empty_api_key_raises_error():
 
 
 async def test_empty_prompt_raises_error():
+    provider = OpenAILLMProvider(
+        api_key="test-key",
+        model="test-model",
+    )
+
+    with pytest.raises(ValueError, match="Prompt cannot be empty."):
+        await provider.generate("")
+
+
+def test_constructor_rejects_invalid_timeout():
+    with pytest.raises(
+        ValueError,
+        match="timeout must be greater than 0.",
+    ):
+        OpenAILLMProvider(
+            api_key="test-key",
+            model="test-model",
+            timeout=0,
+        )
+
+
+def test_constructor_rejects_negative_retries():
+    with pytest.raises(
+        ValueError,
+        match="max_retries cannot be negative.",
+    ):
+        OpenAILLMProvider(
+            api_key="test-key",
+            model="test-model",
+            max_retries=-1,
+        )
+
+
+def test_constructor_passes_timeout_and_retries_to_client():
+    with patch("app.providers.llm.openai.AsyncOpenAI") as mock_client:
+        OpenAILLMProvider(
+            api_key="test-key",
+            model="test-model",
+            timeout=25.0,
+            max_retries=4,
+        )
+
+    mock_client.assert_called_once_with(
+        api_key="test-key",
+        timeout=25.0,
+        max_retries=4,
+    )
+
+
+async def test_generate_translates_openai_api_error():
+    provider = OpenAILLMProvider(
+        api_key="test-key",
+        model="test-model",
+    )
+
+    class FailingResponses:
+        async def create(self, model, input):
+            raise openai.APIConnectionError(request=None)
+
+    class FailingClient:
+        responses = FailingResponses()
+
+    provider.client = FailingClient()
+
+    with pytest.raises(
+        ProviderError,
+        match="The language model provider request failed.",
+    ) as exc_info:
+        await provider.generate("Say hello.")
+
+    assert isinstance(exc_info.value.__cause__, openai.APIConnectionError)
+
+
+async def test_generate_does_not_translate_empty_prompt():
     provider = OpenAILLMProvider(
         api_key="test-key",
         model="test-model",
